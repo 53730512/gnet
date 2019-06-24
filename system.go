@@ -17,8 +17,33 @@ var (
 	_SetConsoleTitle uintptr
 )
 
+type sysST struct {
+}
+
+func NewSys() *sysST {
+	ptr := &sysST{}
+	if ptr.Init() {
+		return ptr
+	} else {
+		return nil
+	}
+}
+
+func (v *sysST) Init() bool {
+	if v.OS() == OSWindows {
+		kernel32, loadErr := syscall.LoadLibrary("kernel32.dll")
+		if loadErr != nil {
+			fmt.Println("loadErr", loadErr)
+		}
+		defer syscall.FreeLibrary(kernel32)
+		_SetConsoleTitle, _ = syscall.GetProcAddress(kernel32, "SetConsoleTitleW")
+	}
+
+	return true
+}
+
 //获得系统
-func OS() uint8 {
+func (v *sysST) OS() uint8 {
 	switch runtime.GOOS {
 	case "windows":
 		return OSWindows
@@ -30,18 +55,8 @@ func OS() uint8 {
 
 }
 
-func SystemInit() {
-	if OS() == OSWindows {
-		kernel32, loadErr := syscall.LoadLibrary("kernel32.dll")
-		if loadErr != nil {
-			fmt.Println("loadErr", loadErr)
-		}
-		defer syscall.FreeLibrary(kernel32)
-		_SetConsoleTitle, _ = syscall.GetProcAddress(kernel32, "SetConsoleTitleW")
-	}
-}
-func SetConsoleTitle(title string) int {
-	if OS() != OSWindows {
+func (v *sysST) SetConsoleTitle(title string) int {
+	if v.OS() != OSWindows {
 		return 0
 	}
 

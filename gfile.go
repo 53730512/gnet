@@ -8,8 +8,24 @@ import (
 	"strings"
 )
 
+type FileST struct {
+}
+
+func NewFile() *FileST {
+	ptr := &FileST{}
+	if ptr.Init() {
+		return ptr
+	} else {
+		return nil
+	}
+}
+
+func (v *FileST) Init() bool {
+	return true
+}
+
 //PathExists ...
-func PathExists(path string) (bool, error) {
+func (v *FileST) PathExists(path string) (bool, error) {
 	_, err := os.Stat(path)
 	if err == nil {
 		return true, nil
@@ -21,9 +37,9 @@ func PathExists(path string) (bool, error) {
 }
 
 //GetFilePath ...
-func GetFilePath(localPath string) string {
+func (v *FileST) GetFilePath(localPath string) string {
 	//命令启动时的路径
-	exists, _ := PathExists(localPath)
+	exists, _ := v.PathExists(localPath)
 	if !exists {
 		AppPath, err := filepath.Abs(filepath.Dir(os.Args[0]))
 		if err != nil {
@@ -31,7 +47,7 @@ func GetFilePath(localPath string) string {
 		}
 		//二进制启动时路径
 		localPath = filepath.Join(AppPath, localPath)
-		exists, err := PathExists(localPath)
+		exists, err := v.PathExists(localPath)
 		if !exists {
 			fmt.Println(localPath + "not found")
 			return ""
@@ -42,7 +58,7 @@ func GetFilePath(localPath string) string {
 }
 
 //GetExePath ...
-func GetExePath() string {
+func (v *FileST) GetExePath() string {
 	file, _ := exec.LookPath(os.Args[0])
 	path, _ := filepath.Abs(file)
 	index := strings.LastIndex(path, string(os.PathSeparator))

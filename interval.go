@@ -2,8 +2,6 @@ package gnet
 
 import (
 	"fmt"
-	"sync"
-	"sync/atomic"
 	"time"
 
 	"github.com/gorilla/websocket"
@@ -15,18 +13,6 @@ type Context struct {
 	messageType int
 	data        []byte
 }
-
-var socket int64
-var rwmutex sync.RWMutex
-
-//ChanReceive ...
-var ChanReceive chan *Context
-
-//ChanPing ...
-var ChanPing chan *Interval
-
-//ChanClose ...
-var ChanClose chan *Interval
 
 //Interval ...
 type Interval struct {
@@ -40,12 +26,6 @@ type Interval struct {
 	chanSend        chan *Context
 	chanClose       chan bool
 	closed          bool
-}
-
-func _init() {
-	intervalList = make(map[int64]*Interval)
-	ChanReceive = make(chan *Context, 20)
-	ChanClose = make(chan *Interval, 20)
 }
 
 func (v *Interval) init(ID int64, conn *websocket.Conn) {
@@ -77,7 +57,7 @@ func (v *Interval) pongCallback(appData string) error {
 	context.messageType = websocket.PongMessage
 	context.data = []byte(appData)
 	// glog.Success("%d", len(context.data))
-	ChanReceive <- context
+	Service.ChanReceive <- context
 	return nil
 }
 
@@ -147,7 +127,7 @@ func (v *Interval) reciveRuntime() {
 		context.itv = v
 		context.messageType = messageType
 		context.data = message
-		ChanReceive <- context
+		Service.ChanReceive <- context
 
 		//fmt.Println("recived")
 	}
@@ -190,7 +170,7 @@ func (v *Interval) update() {
 				tm := time.Now().UnixNano() / 1000000
 
 				//strTm := strconv.FormatInt(tm, 10)
-				bytes := IntToBytes(int(tm))
+				bytes := Format.IntToBytes(int(tm))
 				// glog.Error("%d", len(bytes))
 				v.wsocket.WriteMessage(websocket.PingMessage, bytes)
 				//fmt.Println("send ping")
@@ -200,7 +180,7 @@ func (v *Interval) update() {
 				v.wsocket.Close()
 				v.wsocket = nil
 				close(v.chanClose)
-				ChanClose <- v
+				Service.ChanClose <- v
 			}
 			return
 		default:
@@ -216,55 +196,4 @@ func (v *Interval) update() {
 		//fmt.Println("update")
 
 	}
-}
-
-var intervalList map[int64]*Interval
-
-//CreateInterval ..
-func CreateInterval(conn *websocket.Conn) *Interval {
-	if intervalList == nil {
-		_init()
-	}
-	atomic.AddInt64(&socket, 1)
-
-	pinterval := &Interval{}
-	pinterval.init(socket, conn)
-	rwmutex.Lock()
-	intervalList[socket] = pinterval
-	rwmutex.Unlock()
-	return pinterval
-}
-
-//FindInerval ...
-func FindInerval(socket int64) *Interval {
-	rwmutex.RLock()
-	defer rwmutex.RUnlock()
-
-	pitv, ok := intervalList[socket]
-	if !ok {
-		return nil
-	}
-
-	return pitv
-}
-
-//RemoveIntervalByID ...
-func RemoveIntervalByID(socket int64) {
-	rwmutex.Lock()
-	delete(intervalList, socket)
-	rwmutex.Unlock()
-}
-
-//RemoveInterval ...
-func RemoveInterval(itv *Interval) {
-	rwmutex.Lock()
-	delete(intervalList, itv.ID)
-	rwmutex.Unlock()
-}
-
-//GetIntervalSize ...
-func GetIntervalSize() int {
-	rwmutex.RLock()
-	defer rwmutex.RUnlock()
-	return len(intervalList)
 }

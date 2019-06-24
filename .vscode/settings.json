@@ -1,0 +1,11 @@
+{
+  //"go.goroot": "C:/Go/",
+  //"go.gopath": "D:/myFolder/go/go_server/",
+  "search.exclude": {
+    "**/github.com": true,
+    "**/golang.org": true
+  },
+  "go.useCodeSnippetsOnFunctionSuggest": true,
+  "go.vetOnSave": "off",
+  "go.lintFlags": ["--disable=all", "--enable=errcheck"],
+}

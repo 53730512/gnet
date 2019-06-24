@@ -8,6 +8,13 @@ package gnet
 // 	return int(tmp)
 // }
 //Add ...
-func Add(x, y int) int {
+type mathST struct {
+}
+
+func NewMath() *mathST {
+	return &mathST{}
+}
+
+func (v *mathST) Add(x, y int) int {
 	return x + y
 }

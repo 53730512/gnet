@@ -10,20 +10,24 @@ import (
 )
 
 //Config ...
-type Config struct {
+type ConfigST struct {
 	filepath string
 	conflist []map[string]map[string]string
 }
 
-//SetConfig Create empty file
-func SetConfig(filepath string) *Config {
-	c := new(Config)
-	c.filepath = filepath
-	return c
+func NewConfig() *ConfigST {
+	return &ConfigST{}
+}
+
+func (v *ConfigST) Load(filepath string) bool {
+	v.filepath = filepath
+	v.conflist = v.conflist[0:0]
+	v.conflist = v.ReadList()
+	return true
 }
 
 //GetValue key values:string
-func (c *Config) GetValue(section, name string) string {
+func (c *ConfigST) GetValue(section, name string) string {
 	c.ReadList()
 	conf := c.ReadList()
 	for _, v := range conf {
@@ -37,7 +41,7 @@ func (c *Config) GetValue(section, name string) string {
 }
 
 //GetValueInt key values:int
-func (c *Config) GetValueInt(section, name string) int {
+func (c *ConfigST) GetValueInt(section, name string) int {
 	c.ReadList()
 	conf := c.ReadList()
 	for _, v := range conf {
@@ -52,7 +56,7 @@ func (c *Config) GetValueInt(section, name string) int {
 }
 
 //GetValueInt32 key values:int
-func (c *Config) GetValueInt32(section, name string) int32 {
+func (c *ConfigST) GetValueInt32(section, name string) int32 {
 	c.ReadList()
 	conf := c.ReadList()
 	for _, v := range conf {
@@ -67,7 +71,7 @@ func (c *Config) GetValueInt32(section, name string) int32 {
 }
 
 //GetValueInt64 key values:int
-func (c *Config) GetValueInt64(section, name string) int64 {
+func (c *ConfigST) GetValueInt64(section, name string) int64 {
 	c.ReadList()
 	conf := c.ReadList()
 	for _, v := range conf {
@@ -82,7 +86,7 @@ func (c *Config) GetValueInt64(section, name string) int64 {
 }
 
 //GetValueArray key values:[]int,split by ","
-func (c *Config) GetValueArray(section, name string) []string {
+func (c *ConfigST) GetValueArray(section, name string) []string {
 	c.ReadList()
 	conf := c.ReadList()
 	for _, v := range conf {
@@ -97,7 +101,7 @@ func (c *Config) GetValueArray(section, name string) []string {
 }
 
 //GetValueIntArray key values:[]int,split by ","
-func (c *Config) GetValueIntArray(section, name string) []int {
+func (c *ConfigST) GetValueIntArray(section, name string) []int {
 	c.ReadList()
 	conf := c.ReadList()
 	for _, v := range conf {
@@ -117,7 +121,7 @@ func (c *Config) GetValueIntArray(section, name string) []int {
 }
 
 //SetValue Set the corresponding value of the key value, if not add, if there is a key change
-func (c *Config) SetValue(section, key, value string) bool {
+func (c *ConfigST) SetValue(section, key, value string) bool {
 	c.ReadList()
 	data := c.conflist
 	var ok bool
@@ -150,7 +154,7 @@ func (c *Config) SetValue(section, key, value string) bool {
 }
 
 //DeleteValue Delete the corresponding key values
-func (c *Config) DeleteValue(section, name string) bool {
+func (c *ConfigST) DeleteValue(section, name string) bool {
 	c.ReadList()
 	data := c.conflist
 	for i, v := range data {
@@ -165,11 +169,11 @@ func (c *Config) DeleteValue(section, name string) bool {
 }
 
 //ReadList List all the configuration file
-func (c *Config) ReadList() []map[string]map[string]string {
+func (c *ConfigST) ReadList() []map[string]map[string]string {
 
 	file, err := os.Open(c.filepath)
 	if err != nil {
-		CheckErr(err)
+		c.CheckErr(err)
 	}
 	defer file.Close()
 	var data map[string]map[string]string
@@ -180,7 +184,7 @@ func (c *Config) ReadList() []map[string]map[string]string {
 		line := strings.TrimSpace(l)
 		if err != nil {
 			if err != io.EOF {
-				CheckErr(err)
+				c.CheckErr(err)
 			}
 			if len(line) == 0 {
 				break
@@ -207,7 +211,7 @@ func (c *Config) ReadList() []map[string]map[string]string {
 }
 
 //CheckErr ...
-func CheckErr(err error) string {
+func (c *ConfigST) CheckErr(err error) string {
 	if err != nil {
 		return fmt.Sprintf("Error is :'%s'", err.Error())
 	}
@@ -215,7 +219,7 @@ func CheckErr(err error) string {
 }
 
 //Ban repeated appended to the slice method
-func (c *Config) uniquappend(conf string) bool {
+func (c *ConfigST) uniquappend(conf string) bool {
 	for _, v := range c.conflist {
 		for k := range v {
 			if k == conf {

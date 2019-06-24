@@ -12,12 +12,6 @@ import (
 	"github.com/gorilla/websocket"
 )
 
-//ChanHTTP ...
-var ChanHTTP chan *HTTPData
-
-//ChanAccept ...
-var ChanAccept chan *websocket.Conn
-
 //HTTPData ...
 type HTTPData struct {
 	Req      string
@@ -25,36 +19,48 @@ type HTTPData struct {
 	ChanBack chan []byte
 }
 
-var mux *http.ServeMux
+type webST struct {
+	mux        *http.ServeMux
+	ChanAccept chan *websocket.Conn
+	ChanHTTP   chan *HTTPData
+}
 
-//Init ...
-func InitHttp() {
-	mux = http.NewServeMux()
-	ChanAccept = make(chan *websocket.Conn, 100)
-	ChanHTTP = make(chan *HTTPData, 100)
+func NewWeb() *webST {
+	ptr := &webST{}
+	if ptr.Init() {
+		return ptr
+	} else {
+		return nil
+	}
+}
+
+func (v *webST) Init() bool {
+	v.mux = http.NewServeMux()
+	v.ChanAccept = make(chan *websocket.Conn, 100)
+	v.ChanHTTP = make(chan *HTTPData, 100)
+	return true
 }
 
 //Close ...
-func Close() {
+func (v *webST) Close() {
 
 }
 
 //Start ...
-func StartHttp(port int, ssl bool, httpIf []string) bool {
-	InitHttp()
-	RegisterHandles(httpIf)
+func (v *webST) Start(port int, ssl bool, httpIf []string) bool {
+	v.RegisterHandles(httpIf)
 	go func() {
 		if ssl {
-			Print("start https service")
-			err := http.ListenAndServeTLS(":8081", GetFilePath("assets/keys/ssl.crt"), GetFilePath("assets/keys/ssl.key"), mux)
+			Log.Print("start https service")
+			err := http.ListenAndServeTLS(":8081", File.GetFilePath("assets/keys/ssl.crt"), File.GetFilePath("assets/keys/ssl.key"), v.mux)
 			fmt.Println(err)
 			if err != nil {
 				panic(err)
 			}
 
 		} else {
-			Print("start http service")
-			err := http.ListenAndServe(fmt.Sprintf(":%d", port), mux)
+			Log.Print("start http service")
+			err := http.ListenAndServe(fmt.Sprintf(":%d", port), v.mux)
 			fmt.Println(err)
 			if err != nil {
 				panic(err)
@@ -67,16 +73,16 @@ func StartHttp(port int, ssl bool, httpIf []string) bool {
 }
 
 //RegisterHandles ...
-func RegisterHandles(httpIf []string) {
-	fs := http.FileServer(http.Dir(GetFilePath("assets/static")))
+func (v *webST) RegisterHandles(httpIf []string) {
+	fs := http.FileServer(http.Dir(File.GetFilePath("assets/static")))
 	//fmt.Println(fs)
-	mux.Handle("/", fs)
+	v.mux.Handle("/", fs)
 
 	//websocket
-	mux.HandleFunc("/ws", WsPage)
+	v.mux.HandleFunc("/ws", v.WsPage)
 
 	addHandle := func(req string) {
-		mux.Handle("/"+req, NewServerHandle(req))
+		v.mux.Handle("/"+req, NewServerHandle(req))
 	}
 	for i := 0; i < len(httpIf); i++ {
 		// println(httpIf[i])
@@ -86,7 +92,7 @@ func RegisterHandles(httpIf []string) {
 }
 
 //WsPage ...
-func WsPage(res http.ResponseWriter, req *http.Request) {
+func (v *webST) WsPage(res http.ResponseWriter, req *http.Request) {
 	//	fmt.Println("wsPage:", req.Header)
 	conn, _error := (&websocket.Upgrader{HandshakeTimeout: 3 * time.Second, CheckOrigin: func(r *http.Request) bool { return true }}).Upgrade(res, req, nil)
 	if _error != nil {
@@ -98,13 +104,13 @@ func WsPage(res http.ResponseWriter, req *http.Request) {
 	//\\conn.WriteMessage(websocket.TextMessage, []byte("hello world"))
 	//ChanConnected <- conn
 	go func() {
-		ChanAccept <- conn
+		v.ChanAccept <- conn
 	}()
 
 }
 
 //Get ...
-func Get(url string) map[string]string {
+func (v *webST) Get(url string) map[string]string {
 	mp := make(map[string]string)
 	mp["result"] = "ok"
 

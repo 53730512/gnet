@@ -25,9 +25,46 @@ type queueData struct {
 	_str  string
 }
 
-var queueChan chan *queueData
+type LogST struct {
+	queueChan chan *queueData
+	logger    *log.Logger
+}
 
-func getLogFileName() string {
+func NewLog() *LogST {
+	ptr := &LogST{}
+	if ptr.Init() {
+		return ptr
+	} else {
+		return nil
+	}
+}
+
+func (v *LogST) Init() bool {
+	v.queueChan = make(chan *queueData, 100)
+
+	os.Mkdir("log", os.ModeDir)
+	file, err := os.OpenFile("log/"+v.getLogFileName(), os.O_APPEND|os.O_CREATE, 666)
+	if err != nil {
+		println("glog 初始化失败:%s", err.Error())
+		return false
+	}
+
+	v.logger = log.New(file, "", log.Ldate|log.Ltime)
+
+	go func() {
+		for {
+			select {
+			case data := <-v.queueChan:
+				color.Set(data.color, color.Bold)
+				log.Println(data._str, "			", data.file, data.line)
+				v.logger.Println(data._str, "			", data.file, data.line)
+				color.Set(color.FgWhite, color.Bold)
+			}
+		}
+	}()
+	return true
+}
+func (v *LogST) getLogFileName() string {
 	tm := time.Now()
 	t1 := tm.Year()
 	t2 := tm.Month()
@@ -39,36 +76,8 @@ func getLogFileName() string {
 	return fmt.Sprintf("%d-%02d-%02d %02d-%02d-%02d %dms.log", t1, t2, t3, t4, t5, t6, t7)
 }
 
-var logger *log.Logger
-
-//Init ...
-func InitLog() bool {
-	queueChan = make(chan *queueData, 100)
-	os.Mkdir("log", os.ModeDir)
-	file, err := os.OpenFile("log/"+getLogFileName(), os.O_APPEND|os.O_CREATE, 666)
-	if err != nil {
-		println("glog 初始化失败:%s", err.Error())
-		return false
-	}
-
-	logger = log.New(file, "", log.Ldate|log.Ltime)
-
-	go func() {
-		for {
-			select {
-			case data := <-queueChan:
-				color.Set(data.color, color.Bold)
-				log.Println(data._str, "			", data.file, data.line)
-				logger.Println(data._str, "			", data.file, data.line)
-				color.Set(color.FgWhite, color.Bold)
-			}
-		}
-	}()
-	return true
-}
-
 //Print ...
-func Print(format string, a ...interface{}) {
+func (v *LogST) Print(format string, a ...interface{}) {
 	_, file, line, _ := runtime.Caller(1)
 	str := fmt.Sprintf(format, a...)
 
@@ -77,12 +86,12 @@ func Print(format string, a ...interface{}) {
 	data.line = line
 	data._str = str
 	data.color = color.FgWhite
-	queueChan <- data
+	v.queueChan <- data
 
 }
 
 //Success ...
-func Success(format string, a ...interface{}) {
+func (v *LogST) Success(format string, a ...interface{}) {
 	_, file, line, _ := runtime.Caller(1)
 	str := fmt.Sprintf(format, a...)
 
@@ -91,11 +100,11 @@ func Success(format string, a ...interface{}) {
 	data.line = line
 	data._str = str
 	data.color = color.FgGreen
-	queueChan <- data
+	v.queueChan <- data
 }
 
 //Warning ...
-func Warning(format string, a ...interface{}) {
+func (v *LogST) Warning(format string, a ...interface{}) {
 	_, file, line, _ := runtime.Caller(1)
 	str := fmt.Sprintf(format, a...)
 
@@ -104,11 +113,11 @@ func Warning(format string, a ...interface{}) {
 	data.line = line
 	data._str = str
 	data.color = color.FgYellow
-	queueChan <- data
+	v.queueChan <- data
 }
 
 //Error ...
-func Error(format string, a ...interface{}) {
+func (v *LogST) Error(format string, a ...interface{}) {
 	_, file, line, _ := runtime.Caller(1)
 	str := fmt.Sprintf(format, a...)
 
@@ -117,5 +126,5 @@ func Error(format string, a ...interface{}) {
 	data.line = line
 	data._str = str
 	data.color = color.FgRed
-	queueChan <- data
+	v.queueChan <- data
 }

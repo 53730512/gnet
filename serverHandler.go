@@ -6,23 +6,20 @@ import (
 	"time"
 )
 
-//NewServerHandle ...
-func NewServerHandle(req string) *ServerHandler {
-	handle := new(ServerHandler)
+type serverHandler struct {
+	time string
+	req  string
+}
+
+func NewServerHandle(req string) *serverHandler {
+	handle := new(serverHandler)
 	handle.time = time.Stamp
 	handle.req = req
 
 	return handle
 }
 
-//ServerHandler ...
-type ServerHandler struct {
-	time string
-	req  string
-}
-
-//ServeHTTP ...
-func (th *ServerHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+func (th *serverHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	defer func() {
 		if err := recover(); err != nil {
 			fmt.Println("回应http:失败:", err)
@@ -34,7 +31,7 @@ func (th *ServerHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	//	fmt.Println(r)
 	waitChan := make(chan []byte)
-	ChanHTTP <- &HTTPData{Req: th.req, Form: &r.Form, ChanBack: waitChan}
+	Web.ChanHTTP <- &HTTPData{Req: th.req, Form: &r.Form, ChanBack: waitChan}
 
 	data := <-waitChan
 

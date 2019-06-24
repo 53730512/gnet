@@ -1,9 +1,26 @@
 package gnet
 
-import "time"
+import (
+	"time"
+)
 
 //GetDate ex:2019-01-14 22:39:50 +0800 CST
-func GetDate() time.Time {
+type dateST struct {
+}
+
+func NewDate() *dateST {
+	ptr := &dateST{}
+	if ptr.Init() {
+		return ptr
+	} else {
+		return nil
+	}
+}
+
+func (v *dateST) Init() bool {
+	return true
+}
+func (v *dateST) GetDate() time.Time {
 	t1 := time.Now().Year()
 	t2 := time.Now().Month()
 	t3 := time.Now().Day()
