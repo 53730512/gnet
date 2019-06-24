@@ -1,4 +1,4 @@
-package el
+package gnet
 
 //DEBUG ...
 var DEBUG bool

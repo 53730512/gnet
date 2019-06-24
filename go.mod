@@ -1,4 +1,4 @@
-module gitee.com/liyp/go_server/tree/master/src/el
+module gitee.com/liyp/gnet
 
 go 1.12
 

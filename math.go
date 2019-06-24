@@ -1,4 +1,4 @@
-package el
+package gnet
 
 //BytesToInt 字节转换成整形
 // func BytesToInt(b []byte) int {
