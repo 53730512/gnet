@@ -70,7 +70,7 @@ func Init() bool {
 		return false
 	}
 
-	return false
+	return true
 }
 
 func Start(handle IFIoservice, fps int) {
