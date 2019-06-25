@@ -7,5 +7,9 @@
   },
   "go.useCodeSnippetsOnFunctionSuggest": true,
   "go.vetOnSave": "off",
-  "go.lintFlags": ["--disable=all", "--enable=errcheck"],
+  "go.lintFlags": [
+    "--disable=all",
+    "--enable=errcheck"
+  ],
+  "go.formatTool": "goimports",
 }
