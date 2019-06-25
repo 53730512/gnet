@@ -1,10 +1,10 @@
 package gnet
 
 import (
-	"fmt"
+	//"fmt"
 	"runtime"
-	"syscall"
-	"unsafe"
+	// "syscall"
+	// "unsafe"
 )
 
 //os
