@@ -50,7 +50,6 @@ func (v *serviceST) Init() bool {
 
 func (v *serviceST) SetHandle(handle IFIoservice) {
 	v.serviceHandle = handle
-	v.serviceHandle.OnInit()
 }
 
 //CreateInterval ..
@@ -99,7 +98,7 @@ func (v *serviceST) GetIntervalSize() int {
 	return len(v.intervalList)
 }
 
-func (v *serviceST) Run(fps int) {
+func (v *serviceST) run(fps int) {
 	runtime.GOMAXPROCS(runtime.NumCPU())
 	v.lobbyTimer = time.Tick(time.Second / 30)
 	v.tickerNumber = time.Now().UnixNano()

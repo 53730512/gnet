@@ -75,5 +75,9 @@ func Init() bool {
 
 func Start(handle IFIoservice, fps int) {
 	Service.SetHandle(handle)
-	Service.Run(fps)
+	Service.run(fps)
+	go func() {
+		handle.OnInit()
+	}()
+
 }
