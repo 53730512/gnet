@@ -81,3 +81,19 @@ func Start(handle IFIoservice, fps int) {
 	}()
 
 }
+
+func Print(format string, a ...interface{}) {
+	Log.Print(format, a...)
+}
+
+func Success(format string, a ...interface{}) {
+	Log.Success(format, a...)
+}
+
+func Warning(format string, a ...interface{}) {
+	Log.Warning(format, a...)
+}
+
+func Error(format string, a ...interface{}) {
+	Log.Error(format, a...)
+}
