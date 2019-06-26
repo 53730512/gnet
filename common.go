@@ -1,26 +1,26 @@
 package gnet
 
 //DEBUG ...
-type CommonST struct {
+type commonST struct {
 	DEBUG bool
 }
 
-func NewCommon() *CommonST {
-	ptr := &CommonST{}
-	if ptr.Init() {
+func newCommon() *commonST {
+	ptr := &commonST{}
+	if ptr.init() {
 		return ptr
 	} else {
 		return nil
 	}
 }
 
-func (v *CommonST) Init() bool {
+func (v *commonST) init() bool {
 	v.DEBUG = false
 	return true
 }
 
 //IsLittleEndian ...
-func (v *CommonST) IsLittleEndian() bool {
+func (v *commonST) IsLittleEndian() bool {
 	s := int16(0x1234)
 	b := int8(s)
 	return b == 0x34

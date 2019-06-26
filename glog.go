@@ -25,21 +25,21 @@ type queueData struct {
 	_str  string
 }
 
-type LogST struct {
+type logST struct {
 	queueChan chan *queueData
 	logger    *log.Logger
 }
 
-func NewLog() *LogST {
-	ptr := &LogST{}
-	if ptr.Init() {
+func newLog() *logST {
+	ptr := &logST{}
+	if ptr.init() {
 		return ptr
 	} else {
 		return nil
 	}
 }
 
-func (v *LogST) Init() bool {
+func (v *logST) init() bool {
 	v.queueChan = make(chan *queueData, 100)
 
 	os.Mkdir("log", os.ModeDir)
@@ -64,7 +64,7 @@ func (v *LogST) Init() bool {
 	}()
 	return true
 }
-func (v *LogST) getLogFileName() string {
+func (v *logST) getLogFileName() string {
 	tm := time.Now()
 	t1 := tm.Year()
 	t2 := tm.Month()
@@ -77,7 +77,7 @@ func (v *LogST) getLogFileName() string {
 }
 
 //Print ...
-func (v *LogST) Print(format string, a ...interface{}) {
+func (v *logST) Print(format string, a ...interface{}) {
 	_, file, line, _ := runtime.Caller(1)
 	str := fmt.Sprintf(format, a...)
 
@@ -91,7 +91,7 @@ func (v *LogST) Print(format string, a ...interface{}) {
 }
 
 //Success ...
-func (v *LogST) Success(format string, a ...interface{}) {
+func (v *logST) Success(format string, a ...interface{}) {
 	_, file, line, _ := runtime.Caller(1)
 	str := fmt.Sprintf(format, a...)
 
@@ -104,7 +104,7 @@ func (v *LogST) Success(format string, a ...interface{}) {
 }
 
 //Warning ...
-func (v *LogST) Warning(format string, a ...interface{}) {
+func (v *logST) Warning(format string, a ...interface{}) {
 	_, file, line, _ := runtime.Caller(1)
 	str := fmt.Sprintf(format, a...)
 
@@ -117,7 +117,7 @@ func (v *LogST) Warning(format string, a ...interface{}) {
 }
 
 //Error ...
-func (v *LogST) Error(format string, a ...interface{}) {
+func (v *logST) Error(format string, a ...interface{}) {
 	_, file, line, _ := runtime.Caller(1)
 	str := fmt.Sprintf(format, a...)
 

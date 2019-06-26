@@ -31,7 +31,7 @@ func (th *serverHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	//	fmt.Println(r)
 	waitChan := make(chan []byte)
-	Web.ChanHTTP <- &HTTPData{Req: th.req, Form: &r.Form, ChanBack: waitChan}
+	Web.ChanHTTP <- &httpData{Req: th.req, Form: &r.Form, ChanBack: waitChan}
 
 	data := <-waitChan
 

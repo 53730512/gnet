@@ -8,16 +8,16 @@ import (
 type dateST struct {
 }
 
-func NewDate() *dateST {
+func newDate() *dateST {
 	ptr := &dateST{}
-	if ptr.Init() {
+	if ptr.init() {
 		return ptr
 	} else {
 		return nil
 	}
 }
 
-func (v *dateST) Init() bool {
+func (v *dateST) init() bool {
 	return true
 }
 func (v *dateST) GetDate() time.Time {

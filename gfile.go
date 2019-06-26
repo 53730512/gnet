@@ -8,24 +8,24 @@ import (
 	"strings"
 )
 
-type FileST struct {
+type fileST struct {
 }
 
-func NewFile() *FileST {
-	ptr := &FileST{}
-	if ptr.Init() {
+func newFile() *fileST {
+	ptr := &fileST{}
+	if ptr.init() {
 		return ptr
 	} else {
 		return nil
 	}
 }
 
-func (v *FileST) Init() bool {
+func (v *fileST) init() bool {
 	return true
 }
 
 //PathExists ...
-func (v *FileST) PathExists(path string) (bool, error) {
+func (v *fileST) PathExists(path string) (bool, error) {
 	_, err := os.Stat(path)
 	if err == nil {
 		return true, nil
@@ -37,7 +37,7 @@ func (v *FileST) PathExists(path string) (bool, error) {
 }
 
 //GetFilePath ...
-func (v *FileST) GetFilePath(localPath string) string {
+func (v *fileST) GetFilePath(localPath string) string {
 	//命令启动时的路径
 	exists, _ := v.PathExists(localPath)
 	if !exists {
@@ -58,7 +58,7 @@ func (v *FileST) GetFilePath(localPath string) string {
 }
 
 //GetExePath ...
-func (v *FileST) GetExePath() string {
+func (v *fileST) GetExePath() string {
 	file, _ := exec.LookPath(os.Args[0])
 	path, _ := filepath.Abs(file)
 	index := strings.LastIndex(path, string(os.PathSeparator))

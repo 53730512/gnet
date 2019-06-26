@@ -14,24 +14,24 @@ const (
 	MYSQL
 )
 
-type DBST struct {
+type dbST struct {
 }
 
-func NewDB() *DBST {
-	ptr := &DBST{}
-	if ptr.Init() {
+func newDB() *dbST {
+	ptr := &dbST{}
+	if ptr.init() {
 		return ptr
 	} else {
 		return nil
 	}
 }
 
-func (v *DBST) Init() bool {
+func (v *dbST) init() bool {
 	return true
 }
 
 //DBConnect connect to db
-func (v *DBST) DBConnect(dbtype int8, addr string, account string, pwd string, dbname string) (*sql.DB, error) {
+func (v *dbST) DBConnect(dbtype int8, addr string, account string, pwd string, dbname string) (*sql.DB, error) {
 	var _type string
 	switch dbtype {
 	case MYSQL:

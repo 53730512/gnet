@@ -11,7 +11,7 @@ package gnet
 type mathST struct {
 }
 
-func NewMath() *mathST {
+func newMath() *mathST {
 	return &mathST{}
 }
 

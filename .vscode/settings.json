@@ -8,4 +8,5 @@
   "go.useCodeSnippetsOnFunctionSuggest": true,
   "go.vetOnSave": "off",
   "go.lintFlags": ["--disable=all", "--enable=errcheck"],
+  "go.useLanguageServer": true
 }

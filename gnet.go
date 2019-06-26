@@ -1,12 +1,12 @@
 package gnet
 
-var Common *CommonST
+var Common *commonST
 var IsInit bool
-var DB *DBST
-var Format *FormatST
-var File *FileST
-var Log *LogST
-var Config *ConfigST
+var DB *dbST
+var Format *formatST
+var File *fileST
+var Log *logST
+var Config *configST
 var Math *mathST
 var Sys *sysST
 var Date *dateST
@@ -15,57 +15,57 @@ var Service *serviceST
 
 func Init() bool {
 	IsInit = false
-	Common = NewCommon()
+	Common = newCommon()
 	if Common == nil {
 		return false
 	}
 
-	DB = NewDB()
+	DB = newDB()
 	if DB == nil {
 		return false
 	}
 
-	Format = NewFormat()
+	Format = newFormat()
 	if Format == nil {
 		return false
 	}
 
-	File = NewFile()
+	File = newFile()
 	if File == nil {
 		return false
 	}
 
-	Log = NewLog()
+	Log = newLog()
 	if Log == nil {
 		return false
 	}
 
-	Config = NewConfig()
+	Config = newConfig()
 	if Config == nil {
 		return false
 	}
 
-	Math = NewMath()
+	Math = newMath()
 	if Math == nil {
 		return false
 	}
 
-	Sys = NewSys()
+	Sys = newSys()
 	if Sys == nil {
 		return false
 	}
 
-	Date = NewDate()
+	Date = newDate()
 	if Date == nil {
 		return false
 	}
 
-	Web = NewWeb()
+	Web = newWeb()
 	if Web == nil {
 		return false
 	}
 
-	Service = NewService()
+	Service = newService()
 	if Service == nil {
 		return false
 	}

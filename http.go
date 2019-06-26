@@ -12,8 +12,8 @@ import (
 	"github.com/gorilla/websocket"
 )
 
-//HTTPData ...
-type HTTPData struct {
+//httpData ...
+type httpData struct {
 	Req      string
 	Form     *url.Values
 	ChanBack chan []byte
@@ -22,22 +22,22 @@ type HTTPData struct {
 type webST struct {
 	mux        *http.ServeMux
 	ChanAccept chan *websocket.Conn
-	ChanHTTP   chan *HTTPData
+	ChanHTTP   chan *httpData
 }
 
-func NewWeb() *webST {
+func newWeb() *webST {
 	ptr := &webST{}
-	if ptr.Init() {
+	if ptr.init() {
 		return ptr
 	} else {
 		return nil
 	}
 }
 
-func (v *webST) Init() bool {
+func (v *webST) init() bool {
 	v.mux = http.NewServeMux()
 	v.ChanAccept = make(chan *websocket.Conn, 100)
-	v.ChanHTTP = make(chan *HTTPData, 100)
+	v.ChanHTTP = make(chan *httpData, 100)
 	return true
 }
 

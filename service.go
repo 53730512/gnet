@@ -29,16 +29,16 @@ type serviceST struct {
 	IsInit        bool
 }
 
-func NewService() *serviceST {
+func newService() *serviceST {
 	ptr := &serviceST{}
-	if ptr.Init() {
+	if ptr.init() {
 		return ptr
 	} else {
 		return nil
 	}
 }
 
-func (v *serviceST) Init() bool {
+func (v *serviceST) init() bool {
 	v.intervalList = make(map[int64]*Interval)
 	v.ChanReceive = make(chan *Context, 20)
 	v.ChanClose = make(chan *Interval, 20)
@@ -190,7 +190,7 @@ func (v *serviceST) onWSReceive(context *Context) {
 	}
 }
 
-func (v *serviceST) onWSRequest(data *HTTPData) {
+func (v *serviceST) onWSRequest(data *httpData) {
 	// fmt.Println("onWSRequest")
 
 	response := v.serviceHandle.OnRequset(data.Req, data.Form)

@@ -7,31 +7,31 @@ import (
 	"unsafe"
 )
 
-type FormatST struct {
+type formatST struct {
 }
 
-func NewFormat() *FormatST {
-	ptr := &FormatST{}
-	if ptr.Init() {
+func newFormat() *formatST {
+	ptr := &formatST{}
+	if ptr.init() {
 		return ptr
 	} else {
 		return nil
 	}
 }
 
-func (v *FormatST) Init() bool {
+func (v *formatST) init() bool {
 	return true
 }
 
 //ResetByte ...
-func (v *FormatST) ResetByte(data []byte) {
+func (v *formatST) ResetByte(data []byte) {
 	for i := 0; i < len(data); i++ {
 		data[i] = 0
 	}
 }
 
 //BytesToInt 字节转换成整形s
-func (v *FormatST) BytesToInt(b []byte) int {
+func (v *formatST) BytesToInt(b []byte) int {
 	bBuf := bytes.NewBuffer(b)
 	var x int64
 	if Common.IsLittleEndian() {
@@ -43,7 +43,7 @@ func (v *FormatST) BytesToInt(b []byte) int {
 }
 
 //IntToBytes 整形转换成字节
-func (v *FormatST) IntToBytes(i int) []byte {
+func (v *formatST) IntToBytes(i int) []byte {
 	size := unsafe.Sizeof(i)
 	var buf = make([]byte, size)
 	if Common.IsLittleEndian() {
@@ -63,7 +63,7 @@ func (v *FormatST) IntToBytes(i int) []byte {
 }
 
 //StringClean ...
-func (v *FormatST) StringClean(str *string) {
+func (v *formatST) StringClean(str *string) {
 	*str = strings.Replace(*str, " ", "", -1)
 	*str = strings.Replace(*str, "\n", "", -1)
 }

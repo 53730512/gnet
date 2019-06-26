@@ -20,7 +20,7 @@ var (
 type sysST struct {
 }
 
-func NewSys() *sysST {
+func newSys() *sysST {
 	ptr := &sysST{}
 	if ptr.Init() {
 		return ptr
