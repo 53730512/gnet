@@ -78,7 +78,7 @@ func (v *logST) getLogFileName() string {
 
 //Print ...
 func (v *logST) Print(format string, a ...interface{}) {
-	_, file, line, _ := runtime.Caller(1)
+	_, file, line, _ := runtime.Caller(2)
 	str := fmt.Sprintf(format, a...)
 
 	data := &queueData{}
@@ -92,7 +92,7 @@ func (v *logST) Print(format string, a ...interface{}) {
 
 //Success ...
 func (v *logST) Success(format string, a ...interface{}) {
-	_, file, line, _ := runtime.Caller(1)
+	_, file, line, _ := runtime.Caller(2)
 	str := fmt.Sprintf(format, a...)
 
 	data := &queueData{}
@@ -105,7 +105,7 @@ func (v *logST) Success(format string, a ...interface{}) {
 
 //Warning ...
 func (v *logST) Warning(format string, a ...interface{}) {
-	_, file, line, _ := runtime.Caller(1)
+	_, file, line, _ := runtime.Caller(2)
 	str := fmt.Sprintf(format, a...)
 
 	data := &queueData{}
@@ -118,7 +118,7 @@ func (v *logST) Warning(format string, a ...interface{}) {
 
 //Error ...
 func (v *logST) Error(format string, a ...interface{}) {
-	_, file, line, _ := runtime.Caller(1)
+	_, file, line, _ := runtime.Caller(2)
 	str := fmt.Sprintf(format, a...)
 
 	data := &queueData{}
