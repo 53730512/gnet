@@ -107,6 +107,9 @@ func (v *Interval) reciveRuntime() {
 	for {
 		messageType, message, err := v.wsocket.ReadMessage()
 
+		if v.closed {
+			break
+		}
 		// if messageType == -1 {
 		// 	continue
 		// }

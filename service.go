@@ -125,10 +125,10 @@ func (v *serviceST) mainLoop() {
 		case _httpData := <-Web.ChanHTTP:
 			v.onWSRequest(_httpData)
 		default:
-			if !v.IsInit {
-				v.serviceHandle.OnInit()
-				v.IsInit = true
-			}
+			// if !v.IsInit {
+			// 	v.serviceHandle.OnInit()
+			// 	v.IsInit = true
+			// }
 			time.Sleep(1 * time.Millisecond)
 		}
 	}

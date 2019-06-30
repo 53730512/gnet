@@ -79,12 +79,14 @@ func (v *STIoservice) OnInit() {
 
 }
 
-func (v *STIoservice) Close(socket int64) {
+func (v *STIoservice) Close(socket int64) bool {
 	itv := Service.FindInerval(socket)
 	if itv != nil {
 		itv.valid = false
-		itv.Close()
+		return itv.Close()
 	}
+
+	return false
 }
 
 func (v *STIoservice) SendItv(itv *Interval, data []byte, isText bool) {
