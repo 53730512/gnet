@@ -86,9 +86,6 @@ func (v *Interval) Close() bool {
 			fmt.Println("关闭interval失败:", err)
 		}
 	}()
-	if v.closed {
-		return false
-	}
 
 	v.chanClose <- true
 	v.closed = true
@@ -146,6 +143,12 @@ func (v *Interval) GetUserData() interface{} {
 	return v.userdata
 }
 
+func (v *Interval) doChanClose() {
+	v.wsocket.Close()
+	v.wsocket = nil
+	close(v.chanClose)
+	Service.ChanClose <- v
+}
 func (v *Interval) update() {
 	if v.closed {
 		return
@@ -165,9 +168,13 @@ func (v *Interval) update() {
 		case context, ok := <-v.chanSend:
 			if !ok {
 				v.Close()
-				return
+				break
 			}
 			v.wsocket.WriteMessage(context.messageType, context.data)
+			//Log.Success("send len:%d", len(v.chanSend))
+			if v.closed && len(v.chanSend) == 0 {
+				v.doChanClose()
+			}
 		case <-v.localTiker.C:
 			if v.forConnector {
 				tm := time.Now().UnixNano() / 1000000
@@ -180,12 +187,13 @@ func (v *Interval) update() {
 			}
 		case _, ok := <-v.chanClose:
 			if ok {
-				v.wsocket.Close()
-				v.wsocket = nil
-				close(v.chanClose)
-				Service.ChanClose <- v
+				if len(v.chanSend) > 0 {
+					v.closed = true
+					break
+				}
+				v.doChanClose()
+				return
 			}
-			return
 		default:
 			time.Sleep(1 * time.Millisecond)
 			break
