@@ -2,6 +2,7 @@ package gnet
 
 import (
 	"fmt"
+	"sync/atomic"
 	"time"
 
 	"github.com/gorilla/websocket"
@@ -25,7 +26,7 @@ type Interval struct {
 	localTiker      *time.Ticker
 	chanSend        chan *Context
 	chanClose       chan bool
-	closed          bool
+	iclosed         int32
 }
 
 func (v *Interval) init(ID int64, conn *websocket.Conn) {
@@ -38,7 +39,7 @@ func (v *Interval) init(ID int64, conn *websocket.Conn) {
 	v.wsocket = conn
 	v.wsocket.SetPingHandler(v.pingCallback)
 	v.wsocket.SetPongHandler(v.pongCallback)
-	v.closed = false
+	v.iclosed = 0
 }
 
 func (v *Interval) GetConn() *websocket.Conn {
@@ -83,12 +84,18 @@ func (v *Interval) Run() {
 func (v *Interval) Close() bool {
 	defer func() {
 		if err := recover(); err != nil {
-			fmt.Println("关闭interval失败:", err)
+			Log.Print("关闭interval失败:%s, id:%d", err, v.ID)
 		}
 	}()
+	// fmt.Println("try to close", v.ID)
+
+	if v.iclosed > 0 {
+		fmt.Println("尝试关闭一个已经关闭的对象")
+		return false
+	}
 
 	v.chanClose <- true
-	v.closed = true
+	atomic.AddInt32(&v.iclosed, 1)
 	return true
 }
 
@@ -104,7 +111,7 @@ func (v *Interval) reciveRuntime() {
 	for {
 		messageType, message, err := v.wsocket.ReadMessage()
 
-		if v.closed {
+		if v.iclosed == 1 {
 			break
 		}
 		// if messageType == -1 {
@@ -112,7 +119,7 @@ func (v *Interval) reciveRuntime() {
 		// }
 		//fmt.Println("recive:", message, "type:", messageType)
 		if err != nil || len(message) == 0 {
-			fmt.Println("close:", v.ID, err)
+			// fmt.Println("close:", v.ID, err)
 			v.Close()
 			break
 		}
@@ -144,15 +151,16 @@ func (v *Interval) GetUserData() interface{} {
 }
 
 func (v *Interval) doChanClose() {
+	// Log.Print("%s:%d", "dochanclose", v.ID)
 	v.wsocket.Close()
 	v.wsocket = nil
 	close(v.chanClose)
 	Service.ChanClose <- v
 }
 func (v *Interval) update() {
-	if v.closed {
-		return
-	}
+	// if v.iclosed == 1 {
+	// 	return
+	// }
 
 	defer func() {
 		//fmt.Println("defer on Read pack")
@@ -167,12 +175,19 @@ func (v *Interval) update() {
 		select {
 		case context, ok := <-v.chanSend:
 			if !ok {
-				v.Close()
+				if atomic.LoadInt32(&v.iclosed) == 1 {
+					// Log.Success("chanClose33:%d", v.ID)
+					v.doChanClose()
+				} else {
+					// Log.Success("chanClose333:%d", v.ID)
+					v.Close()
+				}
 				break
 			}
 			v.wsocket.WriteMessage(context.messageType, context.data)
 			//Log.Success("send len:%d", len(v.chanSend))
-			if v.closed && len(v.chanSend) == 0 {
+			if atomic.LoadInt32(&v.iclosed) > 0 && len(v.chanSend) == 0 {
+				// Log.Success("chanClose3:%d", v.ID)
 				v.doChanClose()
 			}
 		case <-v.localTiker.C:
@@ -187,10 +202,14 @@ func (v *Interval) update() {
 			}
 		case _, ok := <-v.chanClose:
 			if ok {
+				// Log.Success("chanClose1:%d", v.ID)
 				if len(v.chanSend) > 0 {
-					v.closed = true
+					//v.closed = true
+					// Log.Success("chanClose111:%d", v.ID)
+					atomic.AddInt32(&v.iclosed, 1)
 					break
 				}
+				// Log.Success("chanClose2:%d", v.ID)
 				v.doChanClose()
 				return
 			}
