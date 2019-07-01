@@ -26,6 +26,7 @@ type Interval struct {
 	localTiker      *time.Ticker
 	chanSend        chan *Context
 	chanClose       chan bool
+	chanPing        chan string
 	iclosed         int32
 }
 
@@ -36,6 +37,7 @@ func (v *Interval) init(ID int64, conn *websocket.Conn) {
 	v.localTiker = time.NewTicker(10 * time.Second)
 	v.chanSend = make(chan *Context, 5)
 	v.chanClose = make(chan bool)
+	v.chanPing = make(chan string)
 	v.wsocket = conn
 	v.wsocket.SetPingHandler(v.pingCallback)
 	v.wsocket.SetPongHandler(v.pongCallback)
@@ -47,7 +49,8 @@ func (v *Interval) GetConn() *websocket.Conn {
 }
 
 func (v *Interval) pingCallback(appData string) error {
-	v.wsocket.WriteMessage(websocket.PongMessage, []byte(appData))
+	//v.wsocket.WriteMessage(websocket.PongMessage, []byte(appData))
+	v.chanPing <- appData
 	return nil
 }
 
@@ -102,7 +105,7 @@ func (v *Interval) Close() bool {
 func (v *Interval) reciveRuntime() {
 	defer func() {
 		if err := recover(); err != nil {
-			fmt.Println("reciveRuntime:", err)
+			Log.Error("reciveRuntime:%s", err)
 			v.Close()
 		}
 
@@ -161,7 +164,7 @@ func (v *Interval) update() {
 	defer func() {
 		//fmt.Println("defer on Read pack")
 		if err := recover(); err != nil {
-			fmt.Println("update:", err)
+			Log.Error("update:%s", err)
 			v.Close()
 		}
 	}()
@@ -209,6 +212,10 @@ func (v *Interval) update() {
 				// Log.Success("chanClose2:%d", v.ID)
 				v.doChanClose()
 				return
+			}
+		case data, ok := <-v.chanPing:
+			if ok {
+				v.wsocket.WriteMessage(websocket.PongMessage, []byte(data))
 			}
 		default:
 			time.Sleep(1 * time.Millisecond)
