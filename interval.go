@@ -158,10 +158,6 @@ func (v *Interval) doChanClose() {
 	Service.ChanClose <- v
 }
 func (v *Interval) update() {
-	// if v.iclosed == 1 {
-	// 	return
-	// }
-
 	defer func() {
 		//fmt.Println("defer on Read pack")
 		if err := recover(); err != nil {
@@ -189,6 +185,7 @@ func (v *Interval) update() {
 			if atomic.LoadInt32(&v.iclosed) > 0 && len(v.chanSend) == 0 {
 				// Log.Success("chanClose3:%d", v.ID)
 				v.doChanClose()
+				return
 			}
 		case <-v.localTiker.C:
 			if v.forConnector {
