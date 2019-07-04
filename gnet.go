@@ -26,7 +26,7 @@ var Service *serviceST
 var closeChan = make(chan string, 20)
 
 func init() {
-	err := errors.New("")
+	err := errors.New("gnet初始化失败...")
 	IsInit = false
 	Common = newCommon()
 	if Common == nil {
@@ -124,17 +124,17 @@ func Start(handle IFIoservice, fps int, port int, ssl bool, httpIf []string) {
 		}
 	}
 
-	Print("正在退出...")
-	Print("************************************")
+	Warning("正在退出...")
+	Warning("************************************")
 	time.Sleep(200 * time.Millisecond)
 }
 
 func Close(err error) {
 	if len(closeChan) == 0 {
 		if err != nil {
-			fmt.Println("服务器关闭中:%s", err.Error())
+			Error("服务器关闭中:%s", err.Error())
 		} else {
-			fmt.Println("服务器关闭中")
+			Error("服务器关闭中")
 		}
 		closeChan <- "q"
 	}
