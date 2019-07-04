@@ -47,6 +47,7 @@ func (v *STIoservice) Connect(address string) *websocket.Conn {
 func (v *STIoservice) Listen(port int, ssl bool, httpIf []string) *Interval {
 
 	Web.Start(port, ssl, httpIf)
+	Log.Success("listen at:%d", port)
 	return nil
 }
 

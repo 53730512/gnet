@@ -51,7 +51,7 @@ func (v *webST) Start(port int, ssl bool, httpIf []string) bool {
 	v.RegisterHandles(httpIf)
 	go func() {
 		if ssl {
-			Log.Print("start https service")
+			//Log.Print("start https service")
 			err := http.ListenAndServeTLS(":8081", File.GetFilePath("assets/keys/ssl.crt"), File.GetFilePath("assets/keys/ssl.key"), v.mux)
 			fmt.Println(err)
 			if err != nil {
@@ -59,7 +59,7 @@ func (v *webST) Start(port int, ssl bool, httpIf []string) bool {
 			}
 
 		} else {
-			Log.Print("start http service")
+			//Log.Print("start http service")
 			err := http.ListenAndServe(fmt.Sprintf(":%d", port), v.mux)
 			fmt.Println(err)
 			if err != nil {

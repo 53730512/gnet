@@ -36,8 +36,8 @@ func (v *Interval) init(ID int64, conn *websocket.Conn) {
 	v.recivePackCount = 0
 	v.localTiker = time.NewTicker(10 * time.Second)
 	v.chanSend = make(chan *Context, 5)
-	v.chanClose = make(chan bool)
-	v.chanPing = make(chan string)
+	v.chanClose = make(chan bool, 2)
+	v.chanPing = make(chan string, 2)
 	v.wsocket = conn
 	v.wsocket.SetPingHandler(v.pingCallback)
 	v.wsocket.SetPongHandler(v.pongCallback)
@@ -55,7 +55,6 @@ func (v *Interval) pingCallback(appData string) error {
 }
 
 func (v *Interval) pongCallback(appData string) error {
-
 	context := new(Context)
 	context.itv = v
 	context.messageType = websocket.PongMessage

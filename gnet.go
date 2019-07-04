@@ -1,5 +1,15 @@
 package gnet
 
+import (
+	"errors"
+	"fmt"
+	"log"
+	"time"
+
+	"net/http"
+	_ "net/http/pprof"
+)
+
 var Common *commonST
 var IsInit bool
 var DB *dbST
@@ -13,73 +23,121 @@ var Date *dateST
 var Web *webST
 var Service *serviceST
 
-func Init() bool {
+var closeChan = make(chan string, 20)
+
+func init() {
+	err := errors.New("")
 	IsInit = false
 	Common = newCommon()
 	if Common == nil {
-		return false
+		Close(err)
+		return
 	}
 
 	DB = newDB()
 	if DB == nil {
-		return false
+		Close(err)
+		return
 	}
 
 	Format = newFormat()
 	if Format == nil {
-		return false
+		Close(err)
+		return
 	}
 
 	File = newFile()
 	if File == nil {
-		return false
+		Close(err)
+		return
 	}
 
 	Log = newLog()
 	if Log == nil {
-		return false
+		Close(err)
+		return
 	}
 
 	Config = newConfig()
 	if Config == nil {
-		return false
+		Close(err)
+		return
 	}
 
 	Math = newMath()
 	if Math == nil {
-		return false
+		Close(err)
+		return
 	}
 
 	Sys = newSys()
 	if Sys == nil {
-		return false
+		Close(err)
+		return
 	}
 
 	Date = newDate()
 	if Date == nil {
-		return false
+		Close(err)
+		return
 	}
 
 	Web = newWeb()
 	if Web == nil {
-		return false
+		Close(err)
+		return
 	}
 
 	Service = newService()
 	if Service == nil {
-		return false
+		Close(err)
+		return
 	}
-
-	return true
 }
 
-func Start(handle IFIoservice, fps int) {
+func inputMornitor() {
+	for {
+		var input string
+		fmt.Scanln(&input)
+		closeChan <- input
+	}
+}
+
+func Start(handle IFIoservice, fps int, port int, ssl bool, httpIf []string) {
 	Service.SetHandle(handle)
 	Service.run(fps)
-	// go func() {
-	// 	handle.OnInit()
-	// }()
+	handle.Listen(port, ssl, httpIf)
 
+	go func() {
+		log.Println(http.ListenAndServe(":8080", nil))
+	}()
+
+	go inputMornitor()
+
+	Print("输入q退出程序")
+	for {
+		input := <-closeChan
+		if input == "q" {
+			break
+		} else {
+			fmt.Println("无效命令:", input)
+		}
+	}
+
+	Print("正在退出...")
+	Print("************************************")
+	time.Sleep(200 * time.Millisecond)
+}
+
+func Close(err error) {
+	if len(closeChan) == 0 {
+		if err != nil {
+			fmt.Println("服务器关闭中:%s", err.Error())
+		} else {
+			fmt.Println("服务器关闭中")
+		}
+		closeChan <- "q"
+	}
 }
 
 func Print(format string, a ...interface{}) {
