@@ -103,15 +103,23 @@ func inputMornitor() {
 	}
 }
 
-func Start(handle IFIoservice, fps int, port int, ssl bool, httpIf []string) {
+func Start(handle IFIoservice, fps int) {
 	Service.SetHandle(handle)
 	Service.run(fps)
-	handle.Listen(port, ssl, httpIf)
 
 	go func() {
 		log.Println(http.ListenAndServe(":8080", nil))
 	}()
 
+}
+
+func Listen(port int, ssl bool, httpIf []string) {
+	go func() {
+		Service.GetHandle().Listen(port, ssl, httpIf)
+	}()
+}
+
+func WaitClose() {
 	go inputMornitor()
 
 	Print("输入'q'退出程序")

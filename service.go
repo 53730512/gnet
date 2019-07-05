@@ -52,6 +52,10 @@ func (v *serviceST) SetHandle(handle IFIoservice) {
 	v.serviceHandle = handle
 }
 
+func (v *serviceST) GetHandle() IFIoservice {
+	return v.serviceHandle
+}
+
 //CreateInterval ..
 func (v *serviceST) CreateInterval(conn *websocket.Conn) *Interval {
 	atomic.AddInt64(&v.socket, 1)
