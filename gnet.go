@@ -114,10 +114,10 @@ func Start(handle IFIoservice, fps int, port int, ssl bool, httpIf []string) {
 
 	go inputMornitor()
 
-	Print("输入q退出程序")
+	Print("输入'q'退出程序")
 	for {
 		input := <-closeChan
-		if input == "q" {
+		if input == "q" || input == "Q" {
 			break
 		} else {
 			fmt.Println("无效命令:", input)
