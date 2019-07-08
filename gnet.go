@@ -24,6 +24,7 @@ var Web *webST
 var Service *serviceST
 
 var closeChan = make(chan string, 20)
+var consoleChan = make(chan string, 20)
 
 func init() {
 	err := errors.New("gnet初始化失败...")
@@ -99,7 +100,11 @@ func inputMornitor() {
 	for {
 		var input string
 		fmt.Scanln(&input)
-		closeChan <- input
+		if input == "q" || input == "Q" {
+			closeChan <- input
+		} else {
+			consoleChan <- input
+		}
 	}
 }
 

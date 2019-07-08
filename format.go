@@ -67,3 +67,16 @@ func (v *formatST) StringClean(str *string) {
 	*str = strings.Replace(*str, " ", "", -1)
 	*str = strings.Replace(*str, "\n", "", -1)
 }
+
+func (v *formatST) StringLen(str string) int {
+	return len([]rune(str))
+}
+
+func (v *formatST) GetChar(str string, pos int) string {
+	unicode := []rune(str)
+	if pos < 0 || pos > len(unicode) {
+		return ""
+	}
+
+	return string(unicode[pos])
+}

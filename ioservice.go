@@ -14,6 +14,7 @@ import (
 //IFIoservice 接口
 type IFIoservice interface {
 	OnConnected(itv *Interval)
+	OnConsoleCMD(cmd string)
 	OnAccept(itv *Interval)
 	OnReceive(itv *Interval, data []byte, isText bool)
 	OnClose(itv *Interval)
@@ -49,6 +50,9 @@ func (v *STIoservice) Listen(port int, ssl bool, httpIf []string) *Interval {
 	Web.Start(port, ssl, httpIf)
 	Log.Success("listen at:%d", port)
 	return nil
+}
+
+func (v *STIoservice) OnConsoleCMD(cmd string) {
 }
 
 func (v *STIoservice) OnConnected(itv *Interval) {

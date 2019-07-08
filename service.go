@@ -128,6 +128,8 @@ func (v *serviceST) mainLoop() {
 			v.serviceHandle.OnUpdate(_time)
 		case _httpData := <-Web.ChanHTTP:
 			v.onWSRequest(_httpData)
+		case cmd := <-consoleChan:
+			v.serviceHandle.OnConsoleCMD(cmd)
 		default:
 			if !v.IsInit {
 				v.serviceHandle.OnInit()
