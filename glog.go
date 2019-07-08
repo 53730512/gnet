@@ -5,6 +5,7 @@ import (
 	"log"
 	"os"
 	"runtime"
+	"strings"
 	"time"
 
 	"github.com/fatih/color"
@@ -39,9 +40,14 @@ func newLog() *logST {
 	}
 }
 
+var logDeepth int
+
+func (v *logST) SetDeep(deep int) {
+	logDeepth = deep
+}
 func (v *logST) init() bool {
 	v.queueChan = make(chan *queueData, 100)
-
+	logDeepth = 3
 	os.Mkdir("log", os.ModeDir)
 	file, err := os.OpenFile("log/"+v.getLogFileName(), os.O_APPEND|os.O_CREATE, 666)
 	if err != nil {
@@ -55,9 +61,27 @@ func (v *logST) init() bool {
 		for {
 			select {
 			case data := <-v.queueChan:
+				arrayFile := strings.Split(data.file, "/")
+				length := len(arrayFile)
 				color.Set(data.color, color.Bold)
-				log.Println(data._str, "			", data.file, data.line)
-				v.logger.Println(data._str, "			", data.file, data.line)
+				deep := logDeepth
+				if length >= deep {
+					fileName := ""
+					for deep > 0 {
+						fileName += arrayFile[length-deep]
+						deep--
+						if deep > 0 {
+							fileName += "/"
+						}
+					}
+
+					//fileName = fmt.Sprintf("%s/%s/%s", arrayFile[length-3], arrayFile[length-2], arrayFile[length-1])
+					log.Println(data._str, "			", fileName, data.line)
+					v.logger.Println(data._str, "			", fileName, data.line)
+				} else {
+					log.Println(data._str, "			", data.file, data.line)
+					v.logger.Println(data._str, "			", data.file, data.line)
+				}
 				color.Set(color.FgWhite, color.Bold)
 			}
 		}
