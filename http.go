@@ -37,11 +37,12 @@ func newWeb() *webST {
 func (v *webST) init() bool {
 	v.ChanAccept = make(chan *websocket.Conn, 100)
 	v.ChanHTTP = make(chan *httpData, 100)
-
 	v.httpserver = &http.Server{
-		ReadTimeout:  3 * time.Second,
-		WriteTimeout: 5 * time.Second,
+		ReadTimeout: 3 * time.Second,
+		//WriteTimeout: 5 * time.Second,
+		//IdleTimeout: 3 * time.Second,
 	}
+
 	return true
 }
 
