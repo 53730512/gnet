@@ -20,9 +20,9 @@ type httpData struct {
 }
 
 type webST struct {
-	mux        *http.ServeMux
 	ChanAccept chan *websocket.Conn
 	ChanHTTP   chan *httpData
+	httpserver *http.Server
 }
 
 func newWeb() *webST {
@@ -35,9 +35,13 @@ func newWeb() *webST {
 }
 
 func (v *webST) init() bool {
-	v.mux = http.NewServeMux()
 	v.ChanAccept = make(chan *websocket.Conn, 100)
 	v.ChanHTTP = make(chan *httpData, 100)
+
+	v.httpserver = &http.Server{
+		ReadTimeout:  3 * time.Second,
+		WriteTimeout: 5 * time.Second,
+	}
 	return true
 }
 
@@ -48,11 +52,13 @@ func (v *webST) Close() {
 
 //Start ...
 func (v *webST) Start(port int, ssl bool, httpIf []string) bool {
+	v.httpserver.Addr = fmt.Sprintf(":%d", port)
+
 	v.RegisterHandles(httpIf)
 	go func() {
 		if ssl {
 			//Log.Print("start https service")
-			err := http.ListenAndServeTLS(":8081", File.GetFilePath("assets/keys/ssl.crt"), File.GetFilePath("assets/keys/ssl.key"), v.mux)
+			err := v.httpserver.ListenAndServeTLS(File.GetFilePath("assets/keys/ssl.crt"), File.GetFilePath("assets/keys/ssl.key"))
 			fmt.Println(err)
 			if err != nil {
 				panic(err)
@@ -60,7 +66,7 @@ func (v *webST) Start(port int, ssl bool, httpIf []string) bool {
 
 		} else {
 			//Log.Print("start http service")
-			err := http.ListenAndServe(fmt.Sprintf(":%d", port), v.mux)
+			err := v.httpserver.ListenAndServe()
 			fmt.Println(err)
 			if err != nil {
 				panic(err)
@@ -75,20 +81,33 @@ func (v *webST) Start(port int, ssl bool, httpIf []string) bool {
 //RegisterHandles ...
 func (v *webST) RegisterHandles(httpIf []string) {
 	fs := http.FileServer(http.Dir(File.GetFilePath("assets/static")))
-	//fmt.Println(fs)
-	v.mux.Handle("/", fs)
-
-	//websocket
-	v.mux.HandleFunc("/ws", v.WsPage)
-
-	addHandle := func(req string) {
-		v.mux.Handle("/"+req, NewServerHandle(req))
-	}
+	http.Handle("/", fs)
+	http.HandleFunc("/ws", v.WsPage)
 	for i := 0; i < len(httpIf); i++ {
-		// println(httpIf[i])
-		addHandle(httpIf[i])
+		req := httpIf[i]
+		http.HandleFunc("/"+req, v.Requst)
 	}
+}
 
+func (v *webST) Requst(w http.ResponseWriter, r *http.Request) {
+	defer func() {
+		if err := recover(); err != nil {
+			fmt.Println("回应http:失败:", err)
+		}
+	}()
+
+	//glog.Print("http request:", th.time, th.req)
+	r.ParseForm()
+
+	//fmt.Println(r)
+	waitChan := make(chan []byte)
+	Web.ChanHTTP <- &httpData{Req: r.RequestURI, Form: &r.Form, ChanBack: waitChan}
+
+	data := <-waitChan
+
+	if !r.Close {
+		w.Write(data)
+	}
 }
 
 //WsPage ...
