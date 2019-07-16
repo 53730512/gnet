@@ -66,6 +66,9 @@ func (v *Interval) pongCallback(appData string) error {
 
 //Send ...
 func (v *Interval) Send(_type int, data []byte) {
+	if v.iclosed > 0 {
+		return
+	}
 	context := new(Context)
 	context.itv = v
 	context.messageType = _type
