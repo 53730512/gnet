@@ -35,7 +35,7 @@ func (v *Interval) init(ID int64, conn *websocket.Conn) {
 	v.forConnector = false
 	v.recivePackCount = 0
 	v.localTiker = time.NewTicker(10 * time.Second)
-	v.chanSend = make(chan *Context, 5)
+	v.chanSend = make(chan *Context, 500)
 	v.chanClose = make(chan bool, 2)
 	v.chanPing = make(chan string, 2)
 	v.wsocket = conn
