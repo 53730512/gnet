@@ -41,7 +41,12 @@ func (v *STIoservice) Connect(address string) *websocket.Conn {
 	}
 	//u := url.URL{Scheme: "ws", Host: *addr, Path: "/ws"}
 
-	Service.ChanConnected <- conn
+	select {
+	case Service.ChanConnected <- conn:
+	default:
+		return nil
+	}
+
 	return conn
 }
 
