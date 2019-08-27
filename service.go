@@ -135,7 +135,11 @@ func (v *serviceST) mainLoop() {
 				v.serviceHandle.OnInit()
 				v.IsInit = true
 			}
-			time.Sleep(1 * time.Millisecond)
+
+			if !v.serviceHandle.OnLoop() {
+				time.Sleep(1 * time.Millisecond)
+			}
+
 		}
 	}
 }

@@ -22,6 +22,7 @@ type IFIoservice interface {
 	Listen(port int, ssl bool, httpIf []string) *Interval
 	Connect(address string) *websocket.Conn
 	OnUpdate(delta float32)
+	OnLoop() bool
 	OnRequset(cmd string, Form *url.Values) []byte
 	OnInit()
 	//Close(socket int64)
@@ -79,6 +80,11 @@ func (v *STIoservice) OnPingpong(itv *Interval, ping int64) {
 
 func (v *STIoservice) OnUpdate(delta float32) {
 
+}
+
+func (v *STIoservice) OnLoop() bool {
+
+	return false
 }
 
 func (v *STIoservice) OnRequset(cmd string, Form *url.Values) []byte {
