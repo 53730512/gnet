@@ -3,10 +3,8 @@ package gnet
 import (
 	"errors"
 	"fmt"
-	"log"
 	"time"
 
-	"net/http"
 	_ "net/http/pprof"
 )
 
@@ -111,11 +109,6 @@ func inputMornitor() {
 func Start(handle IFIoservice, fps int) {
 	Service.SetHandle(handle)
 	Service.run(fps)
-
-	go func() {
-		log.Println(http.ListenAndServe(":8080", nil))
-	}()
-
 }
 
 func Listen(port int, ssl bool, httpIf []string) {

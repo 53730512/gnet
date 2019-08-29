@@ -46,7 +46,7 @@ func (v *logST) SetDeep(deep int) {
 	logDeepth = deep
 }
 func (v *logST) init() bool {
-	v.queueChan = make(chan *queueData, 100)
+	v.queueChan = make(chan *queueData, 1000)
 	logDeepth = 3
 	os.Mkdir("log", os.ModeDir)
 	file, err := os.OpenFile("log/"+v.getLogFileName(), os.O_APPEND|os.O_CREATE, 666)
