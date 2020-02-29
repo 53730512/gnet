@@ -1,0 +1,16 @@
+{
+  "name": "gnet",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "cd main && go run main.go"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://gitee.com/liyp/gnet.git"
+  },
+  "author": "",
+  "license": "ISC"
+}
