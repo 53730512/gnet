@@ -5,6 +5,7 @@ import (
 )
 
 func main() {
+	TestFun()
 	gnet.Success("abc")
 	gnet.WaitClose()
 }
