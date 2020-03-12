@@ -1,6 +1,8 @@
 package main
 
-import "gitee.com/liyp_admin/gnet"
+import (
+	"gitee.com/liyp_admin/gnet"
+)
 
 func init() {
 	TestFun()
