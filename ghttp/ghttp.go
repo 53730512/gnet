@@ -1,4 +1,4 @@
-package gnet
+package ghttp
 
 import (
 	"crypto/tls"
@@ -12,20 +12,20 @@ import (
 	"github.com/gorilla/websocket"
 )
 
-//httpData ...
-type httpData struct {
+//HttpData ...
+type HttpData struct {
 	Req      string
 	Form     *url.Values
 	ChanBack chan []byte
 }
 
-type webST struct {
+type WebST struct {
 	ChanAccept chan *websocket.Conn
-	ChanHTTP   chan *httpData
+	ChanHTTP   chan *HttpData
 	httpserver *http.Server
 }
 
-func newWeb() *webST {
+func NewWeb() *webST {
 	ptr := &webST{}
 	if ptr.init() {
 		return ptr
@@ -34,9 +34,9 @@ func newWeb() *webST {
 	}
 }
 
-func (v *webST) init() bool {
+func (v *WebST) init() bool {
 	v.ChanAccept = make(chan *websocket.Conn, 100)
-	v.ChanHTTP = make(chan *httpData, 100)
+	v.ChanHTTP = make(chan *HttpData, 100)
 	v.httpserver = &http.Server{
 		ReadTimeout: 3 * time.Second,
 		//WriteTimeout: 5 * time.Second,
@@ -47,12 +47,12 @@ func (v *webST) init() bool {
 }
 
 //Close ...
-func (v *webST) Close() {
+func (v *WebST) Close() {
 
 }
 
 //Start ...
-func (v *webST) Start(port int, ssl bool, httpIf []string) bool {
+func (v *WebST) Start(port int, ssl bool, httpIf []string) bool {
 	v.httpserver.Addr = fmt.Sprintf(":%d", port)
 
 	v.RegisterHandles(httpIf)
@@ -80,7 +80,7 @@ func (v *webST) Start(port int, ssl bool, httpIf []string) bool {
 }
 
 //RegisterHandles ...
-func (v *webST) RegisterHandles(httpIf []string) {
+func (v *WebST) RegisterHandles(httpIf []string) {
 	fs := http.FileServer(http.Dir(File.GetFilePath("assets/static")))
 	http.Handle("/", fs)
 	http.HandleFunc("/ws", v.WsPage)
@@ -90,7 +90,7 @@ func (v *webST) RegisterHandles(httpIf []string) {
 	}
 }
 
-func (v *webST) Requst(w http.ResponseWriter, r *http.Request) {
+func (v *WebST) Requst(w http.ResponseWriter, r *http.Request) {
 	defer func() {
 		if err := recover(); err != nil {
 			fmt.Println("回应http:失败:", err)
@@ -102,7 +102,7 @@ func (v *webST) Requst(w http.ResponseWriter, r *http.Request) {
 
 	//fmt.Println(r)
 	waitChan := make(chan []byte)
-	Web.ChanHTTP <- &httpData{Req: r.RequestURI, Form: &r.Form, ChanBack: waitChan}
+	v.ChanHTTP <- &HttpData{Req: r.RequestURI, Form: &r.Form, ChanBack: waitChan}
 
 	data := <-waitChan
 
@@ -112,7 +112,7 @@ func (v *webST) Requst(w http.ResponseWriter, r *http.Request) {
 }
 
 //WsPage ...
-func (v *webST) WsPage(res http.ResponseWriter, req *http.Request) {
+func (v *WebST) WsPage(res http.ResponseWriter, req *http.Request) {
 	//	fmt.Println("wsPage:", req.Header)
 	conn, _error := (&websocket.Upgrader{HandshakeTimeout: 3 * time.Second, CheckOrigin: func(r *http.Request) bool { return true }}).Upgrade(res, req, nil)
 	if _error != nil {
@@ -130,7 +130,7 @@ func (v *webST) WsPage(res http.ResponseWriter, req *http.Request) {
 }
 
 //Get ...
-func (v *webST) Get(url string) map[string]string {
+func (v *WebST) Get(url string) map[string]string {
 	mp := make(map[string]string)
 	mp["result"] = "ok"
 

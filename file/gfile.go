@@ -1,4 +1,4 @@
-package gnet
+package gfile
 
 import (
 	"fmt"
@@ -8,11 +8,11 @@ import (
 	"strings"
 )
 
-type fileST struct {
+type FileST struct {
 }
 
-func newFile() *fileST {
-	ptr := &fileST{}
+func NewFile() *FileST {
+	ptr := &FileST{}
 	if ptr.init() {
 		return ptr
 	} else {
@@ -20,12 +20,12 @@ func newFile() *fileST {
 	}
 }
 
-func (v *fileST) init() bool {
+func (v *FileST) init() bool {
 	return true
 }
 
 //PathExists ...
-func (v *fileST) PathExists(path string) (bool, error) {
+func (v *FileST) PathExists(path string) (bool, error) {
 	_, err := os.Stat(path)
 	if err == nil {
 		return true, nil
@@ -37,7 +37,7 @@ func (v *fileST) PathExists(path string) (bool, error) {
 }
 
 //GetFilePath ...
-func (v *fileST) GetFilePath(localPath string) string {
+func (v *FileST) GetFilePath(localPath string) string {
 	//命令启动时的路径
 	exists, _ := v.PathExists(localPath)
 	if !exists {
@@ -58,7 +58,7 @@ func (v *fileST) GetFilePath(localPath string) string {
 }
 
 //GetExePath ...
-func (v *fileST) GetExePath() string {
+func (v *FileST) GetExePath() string {
 	file, _ := exec.LookPath(os.Args[0])
 	path, _ := filepath.Abs(file)
 	index := strings.LastIndex(path, string(os.PathSeparator))

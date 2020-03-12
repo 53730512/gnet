@@ -6,6 +6,7 @@ import (
 	"sync/atomic"
 	"time"
 
+	ghttp "gitee.com/liyp_admin/gnet/ghttp"
 	"github.com/gorilla/websocket"
 )
 
@@ -200,7 +201,7 @@ func (v *serviceST) onWSReceive(context *Context) {
 	}
 }
 
-func (v *serviceST) onWSRequest(data *httpData) {
+func (v *serviceST) onWSRequest(data *ghttp.HttpData) {
 	// fmt.Println("onWSRequest")
 
 	response := v.serviceHandle.OnRequset(data.Req, data.Form)

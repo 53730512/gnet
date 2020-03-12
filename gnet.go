@@ -5,20 +5,24 @@ import (
 	"fmt"
 	"time"
 
+	"gitee.com/liyp_admin/gnet/ghttp"
+
 	_ "net/http/pprof"
+
+	"gitee.com/liyp_admin/gnet/gfile"
 )
 
 var Common *commonST
 var IsInit bool
 var DB *dbST
 var Format *formatST
-var File *fileST
+var File *gfile.FileST
 var Log *logST
 var Config *configST
 var Math *mathST
 var Sys *sysST
 var Date *dateST
-var Web *webST
+var Web *ghttp.WebST
 var Service *serviceST
 
 var closeChan = make(chan string, 20)
@@ -81,7 +85,7 @@ func init() {
 		return
 	}
 
-	Web = newWeb()
+	Web = ghttp.NewWeb()
 	if Web == nil {
 		Close(err)
 		return

@@ -1,8 +1,9 @@
 package main
 
 import (
-	"gitee.com/liyp/gnet"
-	"gitee.com/liyp/gnet/main/netservice"
+	"main/netservice"
+
+	"gitee.com/liyp_admin/gnet"
 )
 
 func init() {

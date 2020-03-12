@@ -1,4 +1,4 @@
-module gitee.com/liyp/gnet
+module gitee.com/liyp_admin/gnet
 
 go 1.14
 
