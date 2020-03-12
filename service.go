@@ -119,7 +119,7 @@ func (v *serviceST) mainLoop() {
 		select {
 		case conn := <-v.ChanConnected:
 			v.onWSConnected(conn)
-		case conn := <-Web.ChanAccept:
+		case conn := <-ghttp.Handle.ChanAccept:
 			v.onWSAccept(conn)
 		case itv := <-Service.ChanClose:
 			v.onWSClose(itv)
@@ -127,7 +127,7 @@ func (v *serviceST) mainLoop() {
 			v.onWSReceive(context)
 		case _time := <-v.chanUpdate:
 			v.serviceHandle.OnUpdate(_time)
-		case _httpData := <-Web.ChanHTTP:
+		case _httpData := <-ghttp.Handle.ChanHTTP:
 			v.onWSRequest(_httpData)
 		case cmd := <-consoleChan:
 			v.serviceHandle.OnConsoleCMD(cmd)

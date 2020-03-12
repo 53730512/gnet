@@ -3,26 +3,23 @@ package gnet
 import (
 	"errors"
 	"fmt"
+	_ "net/http/pprof"
 	"time"
 
-	"gnet/ghttp"
-
-	_ "net/http/pprof"
-
-	"gnet/gfile"
+	_ "gitee.com/liyp_admin/gnet/gfile"
+	_ "gitee.com/liyp_admin/gnet/ghttp"
+	// "gnet/gfile"
 )
 
 var Common *commonST
 var IsInit bool
 var DB *dbST
 var Format *formatST
-var File *gfile.FileST
 var Log *logST
 var Config *configST
 var Math *mathST
 var Sys *sysST
 var Date *dateST
-var Web *ghttp.WebST
 var Service *serviceST
 
 var closeChan = make(chan string, 20)
@@ -45,12 +42,6 @@ func init() {
 
 	Format = newFormat()
 	if Format == nil {
-		Close(err)
-		return
-	}
-
-	File = newFile()
-	if File == nil {
 		Close(err)
 		return
 	}
@@ -81,12 +72,6 @@ func init() {
 
 	Date = newDate()
 	if Date == nil {
-		Close(err)
-		return
-	}
-
-	Web = ghttp.NewWeb()
-	if Web == nil {
 		Close(err)
 		return
 	}

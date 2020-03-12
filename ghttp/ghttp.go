@@ -9,8 +9,11 @@ import (
 	"strings"
 	"time"
 
+	"gitee.com/liyp_admin/gnet/gfile"
 	"github.com/gorilla/websocket"
 )
+
+var Handle *webST
 
 //HttpData ...
 type HttpData struct {
@@ -19,22 +22,18 @@ type HttpData struct {
 	ChanBack chan []byte
 }
 
-type WebST struct {
+type webST struct {
 	ChanAccept chan *websocket.Conn
 	ChanHTTP   chan *HttpData
 	httpserver *http.Server
 }
 
-func NewWeb() *webST {
-	ptr := &webST{}
-	if ptr.init() {
-		return ptr
-	} else {
-		return nil
-	}
+func init() {
+	Handle = &webST{}
+	Handle.init()
 }
 
-func (v *WebST) init() bool {
+func (v *webST) init() bool {
 	v.ChanAccept = make(chan *websocket.Conn, 100)
 	v.ChanHTTP = make(chan *HttpData, 100)
 	v.httpserver = &http.Server{
@@ -47,19 +46,19 @@ func (v *WebST) init() bool {
 }
 
 //Close ...
-func (v *WebST) Close() {
+func (v *webST) Close() {
 
 }
 
 //Start ...
-func (v *WebST) Start(port int, ssl bool, httpIf []string) bool {
-	v.httpserver.Addr = fmt.Sprintf(":%d", port)
+func Start(port int, ssl bool, httpIf []string) bool {
+	Handle.httpserver.Addr = fmt.Sprintf(":%d", port)
 
-	v.RegisterHandles(httpIf)
+	Handle.RegisterHandles(httpIf)
 	go func() {
 		if ssl {
 			//Log.Print("start https service")
-			err := v.httpserver.ListenAndServeTLS(File.GetFilePath("assets/keys/ssl.crt"), File.GetFilePath("assets/keys/ssl.key"))
+			err := Handle.httpserver.ListenAndServeTLS(gfile.GetFilePath("assets/keys/ssl.crt"), gfile.GetFilePath("assets/keys/ssl.key"))
 			fmt.Println(err)
 			if err != nil {
 				panic(err)
@@ -67,7 +66,7 @@ func (v *WebST) Start(port int, ssl bool, httpIf []string) bool {
 
 		} else {
 			//Log.Print("start http service")
-			err := v.httpserver.ListenAndServe()
+			err := Handle.httpserver.ListenAndServe()
 			fmt.Println(err)
 			if err != nil {
 				panic(err)
@@ -80,8 +79,8 @@ func (v *WebST) Start(port int, ssl bool, httpIf []string) bool {
 }
 
 //RegisterHandles ...
-func (v *WebST) RegisterHandles(httpIf []string) {
-	fs := http.FileServer(http.Dir(File.GetFilePath("assets/static")))
+func (v *webST) RegisterHandles(httpIf []string) {
+	fs := http.FileServer(http.Dir(gfile.GetFilePath("assets/static")))
 	http.Handle("/", fs)
 	http.HandleFunc("/ws", v.WsPage)
 	for i := 0; i < len(httpIf); i++ {
@@ -90,7 +89,7 @@ func (v *WebST) RegisterHandles(httpIf []string) {
 	}
 }
 
-func (v *WebST) Requst(w http.ResponseWriter, r *http.Request) {
+func (v *webST) Requst(w http.ResponseWriter, r *http.Request) {
 	defer func() {
 		if err := recover(); err != nil {
 			fmt.Println("回应http:失败:", err)
@@ -112,7 +111,7 @@ func (v *WebST) Requst(w http.ResponseWriter, r *http.Request) {
 }
 
 //WsPage ...
-func (v *WebST) WsPage(res http.ResponseWriter, req *http.Request) {
+func (v *webST) WsPage(res http.ResponseWriter, req *http.Request) {
 	//	fmt.Println("wsPage:", req.Header)
 	conn, _error := (&websocket.Upgrader{HandshakeTimeout: 3 * time.Second, CheckOrigin: func(r *http.Request) bool { return true }}).Upgrade(res, req, nil)
 	if _error != nil {
@@ -130,7 +129,7 @@ func (v *WebST) WsPage(res http.ResponseWriter, req *http.Request) {
 }
 
 //Get ...
-func (v *WebST) Get(url string) map[string]string {
+func (v *webST) Get(url string) map[string]string {
 	mp := make(map[string]string)
 	mp["result"] = "ok"
 
