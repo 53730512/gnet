@@ -5,11 +5,11 @@ import (
 	"fmt"
 	"time"
 
-	"gitee.com/liyp_admin/gnet/ghttp"
+	"gnet/ghttp"
 
 	_ "net/http/pprof"
 
-	"gitee.com/liyp_admin/gnet/gfile"
+	"gnet/gfile"
 )
 
 var Common *commonST
