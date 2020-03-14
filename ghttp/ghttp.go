@@ -9,7 +9,10 @@ import (
 	"strings"
 	"time"
 
+	"gitee.com/liyp_admin/gnet/ghttp/user"
+
 	"gitee.com/liyp_admin/gnet/gfile"
+	"github.com/gorilla/mux"
 	"github.com/gorilla/websocket"
 )
 
@@ -80,15 +83,24 @@ func Start(port int, ssl bool, httpIf []string) bool {
 
 //RegisterHandles ...
 func (v *webST) RegisterHandles(httpIf []string) {
+	Route := mux.NewRouter()
+
+	session := Route.PathPrefix("/user").Subrouter()
+	session.HandleFunc("/login", user.Login)
+	session.HandleFunc("/logout", user.Logout)
+	session.HandleFunc("/Secret", user.Secret)
+
 	fs := http.FileServer(http.Dir(gfile.GetFilePath("assets/static")))
-	http.Handle("/", fs)
-	http.HandleFunc("/ws", v.WsPage)
+	Route.Handle("/", fs)
+	Route.HandleFunc("/ws", v.WsPage)
+
 	for i := 0; i < len(httpIf); i++ {
 		req := httpIf[i]
-		http.HandleFunc("/"+req, v.Requst)
+		Route.HandleFunc("/"+req, v.Requst)
 	}
-}
 
+	http.Handle("/", Route)
+}
 func (v *webST) Requst(w http.ResponseWriter, r *http.Request) {
 	defer func() {
 		if err := recover(); err != nil {
