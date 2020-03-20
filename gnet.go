@@ -24,6 +24,7 @@ var Service *serviceST
 
 var closeChan = make(chan string, 20)
 var consoleChan = make(chan string, 20)
+var listenOk = make(chan bool, 1)
 
 func init() {
 	err := errors.New("gnet初始化失败...")
@@ -84,7 +85,6 @@ func init() {
 }
 
 func inputMornitor() {
-	Print("输入'q'退出程序")
 	for {
 		var input string
 		fmt.Scanln(&input)
@@ -108,7 +108,15 @@ func Listen(port int, ssl bool, httpIf []string) {
 }
 
 func WaitClose() {
+	isok := <-listenOk
+	if !isok {
+		Error("listenOk chan failed!'")
+		return
+	}
+
 	go inputMornitor()
+
+	Print("输入'q'退出程序")
 	for {
 		input := <-closeChan
 		if input == "q" || input == "Q" {

@@ -56,6 +56,7 @@ func (v *STIoservice) Listen(port int, ssl bool, httpIf []string) *Interval {
 
 	ghttp.Start(port, ssl, httpIf)
 	Log.Success("listen at:%d", port)
+	listenOk <- true
 	return nil
 }
 
