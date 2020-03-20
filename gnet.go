@@ -84,6 +84,7 @@ func init() {
 }
 
 func inputMornitor() {
+	Print("输入'q'退出程序")
 	for {
 		var input string
 		fmt.Scanln(&input)
@@ -108,8 +109,6 @@ func Listen(port int, ssl bool, httpIf []string) {
 
 func WaitClose() {
 	go inputMornitor()
-
-	Print("输入'q'退出程序")
 	for {
 		input := <-closeChan
 		if input == "q" || input == "Q" {

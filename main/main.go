@@ -13,6 +13,7 @@ func main() {
 	var _ioservice = &gnet.STIoservice{}
 	gnet.Start(_ioservice, 1)
 	gnet.Listen(10080, false, reqList)
+
 	gnet.WaitClose()
 }
 
