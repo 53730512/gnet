@@ -25,7 +25,7 @@ var Service *serviceST
 var closeChan = make(chan string, 20)
 var consoleChan = make(chan string, 20)
 var listenOk = make(chan bool, 1)
-var isStart = false
+var isListen = false
 
 func init() {
 	err := errors.New("gnet初始化失败...")
@@ -98,19 +98,19 @@ func inputMornitor() {
 }
 
 func Start(handle IFIoservice, fps int) {
-	isStart = true
 	Service.SetHandle(handle)
 	Service.run(fps)
 }
 
 func Listen(port int, ssl bool, httpIf []string) {
+	isListen = true
 	go func() {
 		Service.GetHandle().Listen(port, ssl, httpIf)
 	}()
 }
 
 func WaitClose() {
-	if isStart {
+	if isListen {
 		isok := <-listenOk
 		if !isok {
 			Error("listenOk chan failed!'")
