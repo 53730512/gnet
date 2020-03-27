@@ -12,7 +12,7 @@ func main() {
 	reqList := []string{"roleNum"}
 	var _ioservice = &gnet.STIoservice{}
 	gnet.Start(_ioservice, 1)
-	gnet.Listen(10080, false, reqList)
+	gnet.Listen(10081, false, reqList)
 
 	gnet.WaitClose()
 }

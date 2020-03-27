@@ -120,7 +120,7 @@ func WaitClose() {
 
 	go inputMornitor()
 
-	Print("输入'q'退出程序")
+	Warning("输入'q'退出程序")
 	for {
 		input := <-closeChan
 		if input == "q" || input == "Q" {
