@@ -65,6 +65,16 @@ func (v *logST) init() bool {
 				length := len(arrayFile)
 				color.Set(data.color, color.Bold)
 				deep := logDeepth
+
+				level := "LOG"
+				switch data.color {
+				case color.FgGreen:
+					level = "SUCCESS"
+				case color.FgYellow:
+					level = "WARNING"
+				case color.FgRed:
+					level = "ERROR"
+				}
 				if length >= deep {
 					fileName := ""
 					for deep > 0 {
@@ -77,10 +87,10 @@ func (v *logST) init() bool {
 
 					//fileName = fmt.Sprintf("%s/%s/%s", arrayFile[length-3], arrayFile[length-2], arrayFile[length-1])
 					log.Println(data._str, "			", fileName, data.line)
-					v.logger.Println(data._str, "			", fileName, data.line)
+					v.logger.Println(data._str, "			", fileName, data.line, level)
 				} else {
 					log.Println(data._str, "			", data.file, data.line)
-					v.logger.Println(data._str, "			", data.file, data.line)
+					v.logger.Println(data._str, "			", data.file, data.line, level)
 				}
 				color.Set(color.FgWhite, color.Bold)
 			}
